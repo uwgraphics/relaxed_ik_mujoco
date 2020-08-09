@@ -2,6 +2,9 @@
 #define relaxedIK_h__
 
 #include <vector>
+#include <iostream>
+#include <unistd.h>
+#include <bitset>
 
 std::vector<double> solveIK(std::vector<double> pos, std::vector<double> quat);
 
