@@ -176,7 +176,7 @@ int main(int argc, const char** argv)
         Opt x = solve(pos.data(), (int) pos.size(), quat.data(), (int) quat.size());
 
         // assign and print the joint angles
-        std::cout << "[";
+        std::cout << "RelaxedIK: [";
         for (int i = 0; i < x.length; i++) {
             d->qpos[i] = x.data[i];
             if (i < x.length - 1) {
