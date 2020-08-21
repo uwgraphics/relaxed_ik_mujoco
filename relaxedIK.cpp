@@ -22,12 +22,40 @@ mjvOption opt;                      // visualization options
 mjvScene scn;                       // abstract scene
 mjrContext con;                     // custom GPU context
 
+//////////////////// Added for Relaxed IK ////////////////////
+// keyboard interactions to change the pose goal
+std::vector<double> pos_l {0.0, 0.0, 0.0};
+std::vector<double> rot_l {0.0, 0.0, 0.0};
+std::vector<double> pos_r {0.0, 0.0, 0.0};
+std::vector<double> rot_r {0.0, 0.0, 0.0};
+double pos_stride = 0.015;
+double rot_stride = 0.055;
+//////////////////// Added for Relaxed IK ////////////////////
+
 // mouse interaction
 bool button_left = false;
 bool button_middle = false;
 bool button_right =  false;
 double lastx = 0;
 double lasty = 0;
+
+std::vector<double> eulerToQuat(std::vector<double> euler) 
+{
+    double c1 = std::cos(euler[0]/2);
+    double s1 = std::sin(euler[0]/2);
+    double c2 = std::cos(euler[1]/2);
+    double s2 = std::sin(euler[1]/2);
+    double c3 = std::cos(euler[2]/2);
+    double s3 = std::sin(euler[2]/2);
+    double c1c2 = c1*c2;
+    double s1s2 = s1*s2;
+    std::vector<double> quat;
+    quat.push_back(c1c2*s3 + s1s2*c3); // x
+	quat.push_back(s1*c2*c3 + c1*s2*s3); // y
+	quat.push_back(c1*s2*c3 - s1*c2*s3); // z
+    quat.push_back(c1c2*c3 - s1s2*s3); // w
+    return quat;
+}
 
 // keyboard callback
 void keyboard(GLFWwindow* window, int key, int scancode, int act, int mods)
@@ -38,6 +66,60 @@ void keyboard(GLFWwindow* window, int key, int scancode, int act, int mods)
         mj_resetData(m, d);
         mj_forward(m, d);
     }
+    //////////////////// Added for Relaxed IK ////////////////////
+    if ( act==GLFW_REPEAT )
+    {
+        if ( key==GLFW_KEY_W ) {
+            pos_l[0] += pos_stride;
+        } else if ( key==GLFW_KEY_X ) {
+            pos_l[0] -= pos_stride;
+        } else if ( key==GLFW_KEY_A ) {   
+            pos_l[1] += pos_stride;
+        } else if ( key==GLFW_KEY_D ) {
+            pos_l[1] -= pos_stride;
+        } else if ( key==GLFW_KEY_Q ) {
+            pos_l[2] += pos_stride;
+        } else if ( key==GLFW_KEY_Z ) {   
+            pos_l[2] -= pos_stride;         
+        } else if ( key==GLFW_KEY_1 ) {
+            rot_l[0] += rot_stride;
+        } else if ( key==GLFW_KEY_2 ) {
+            rot_l[0] -= rot_stride;
+        } else if ( key==GLFW_KEY_3 ) {   
+            rot_l[1] += rot_stride;
+        } else if ( key==GLFW_KEY_4 ) {
+            rot_l[1] -= rot_stride;
+        } else if ( key==GLFW_KEY_5 ) {
+            rot_l[2] += rot_stride;
+        } else if ( key==GLFW_KEY_6 ) {
+            rot_l[2] -= rot_stride;
+        } else if ( key==GLFW_KEY_I ) {  
+            pos_r[0] += pos_stride;
+        } else if ( key==GLFW_KEY_M ) {
+            pos_r[0] -= pos_stride;
+        } else if ( key==GLFW_KEY_J ) {
+            pos_r[1] += pos_stride;
+        } else if ( key==GLFW_KEY_L ) {  
+            pos_r[1] -= pos_stride;
+        } else if ( key==GLFW_KEY_U ) {
+            pos_r[2] += pos_stride;
+        } else if ( key==GLFW_KEY_N ) {
+            pos_r[2] -= pos_stride;
+        } else if ( key==GLFW_KEY_EQUAL ) {
+            rot_r[0] += rot_stride;
+        } else if ( key==GLFW_KEY_MINUS ) {
+            rot_r[0] -= rot_stride;
+        } else if ( key==GLFW_KEY_0 ) {
+            rot_r[1] += rot_stride;
+        } else if ( key==GLFW_KEY_9 ) {
+            rot_r[1] -= rot_stride;     
+        } else if ( key==GLFW_KEY_8 ) {  
+            rot_r[2] += rot_stride;          
+        } else if ( key==GLFW_KEY_7 ) {
+            rot_r[2] -= rot_stride;
+        }
+    }
+    //////////////////// Added for Relaxed IK ////////////////////
 }
 
 // mouse button callback
@@ -166,14 +248,21 @@ int main(int argc, const char** argv)
     {
         //////////////////// Added for Relaxed IK ////////////////////
         // The position goal and the rotation goal
-        std::vector<double> pos {0.0, 0.0, 0.0};
-        std::vector<double> quat {0.0, 0.0, 0.0, 1.0};
+        std::vector<double> pos_goal = pos_l;
+        pos_goal.insert(pos_goal.end(), pos_r.begin(), pos_r.end());
+        for (int i = 0; i < pos_goal.size(); i++) {
+            // std::cout << pos_goal[i] << ", ";
+        }
+        std::vector<double> quat_l = eulerToQuat(rot_l);
+        std::vector<double> quat_r = eulerToQuat(rot_r);
+        std::vector<double> quat_goal = quat_l;
+        quat_goal.insert(quat_goal.end(), quat_r.begin(), quat_r.end());
 
         // get the joint angle solution from relaxed IK
         // As the only callable function in this RelaxedIK library, "solve" takes in 
         // a position goal and a rotation goal and returns a joint angle solution. 
         // Usually you want to put it in the main loop to update the joint angles consistently.
-        Opt x = solve(pos.data(), (int) pos.size(), quat.data(), (int) quat.size());
+        Opt x = solve(pos_goal.data(), (int) pos_goal.size(), quat_goal.data(), (int) quat_goal.size());
 
         // assign and print the joint angles
         std::cout << "RelaxedIK: [";
