@@ -67,7 +67,7 @@ void keyboard(GLFWwindow* window, int key, int scancode, int act, int mods)
         mj_forward(m, d);
     }
     //////////////////// Added for Relaxed IK ////////////////////
-    if ( act==GLFW_REPEAT )
+    if ( act==GLFW_REPEAT || act==GLFW_PRESS )
     {
         if ( key==GLFW_KEY_W ) {
             pos_l[0] += pos_stride;
@@ -250,9 +250,6 @@ int main(int argc, const char** argv)
         // The position goal and the rotation goal
         std::vector<double> pos_goal = pos_l;
         pos_goal.insert(pos_goal.end(), pos_r.begin(), pos_r.end());
-        for (int i = 0; i < pos_goal.size(); i++) {
-            // std::cout << pos_goal[i] << ", ";
-        }
         std::vector<double> quat_l = eulerToQuat(rot_l);
         std::vector<double> quat_r = eulerToQuat(rot_r);
         std::vector<double> quat_goal = quat_l;
