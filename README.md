@@ -43,7 +43,6 @@ To use this wrapper, you will first need to install Rust. Please go to https://w
         ```bash
         cargo build
         ```
-1. Look at <settings.yaml> in the folder *relaxed_ik_core/config* and follow the instructions there to customize the parameters, change the input device, and manage the environment obstacles. Note that you don't need to recompile *relaxed_ik_core* every time you change the parameters in <settings.yaml>.
 2. If you are working with a new robot, add the corresponding XML model into the root directory of this repo. Refer to the *franka_sim* and *sawyer_sim* folders for examples.
 3. Complie RelaxedIK in Mujoco by running `make` from the root directory of this repo.
 4. Select one of the robot models avaiable (sawyer and panda) and play with RelaxedIK by running the following commands from the root directory of this repo. When the program is running, the joint angle solutions will be printed to the console.
@@ -57,7 +56,7 @@ To use this wrapper, you will first need to install Rust. Please go to https://w
     ./relaxedIK ../relaxed_ik_mujoco/franka_sim/franka_panda.xml
     ```
 5. If you want to fit RelaxedIK into your own project, please follow these steps:
-    1. Go to `relaxed_ik_mujoco/relaxed_ik_core/config/loaded_robot` and configure the name of the pre-computed robot arm you would like to run (available options are baxter, hubo, iiwa7, jaco7, panda, sawyer, ur5 and yumi).
+    1. Go to `relaxed_ik_mujoco/relaxed_ik_core/config/loaded_robot` and type the name of the pre-computed robot arm you would like to run (available options are baxter, hubo, iiwa7, jaco7, panda, sawyer, ur5 and yumi).
     2. All the code required to call RelaxedIK is marked by "Added for RelaxedIK" in relaxed_ik_mujoco/relaxedIK.cpp. You can take a look at it for reference of how to call RelaxedIK in your script.
     3. Refer to relaxed_ik_mujoco/Makefile for the example of how to compile a Mujoco project with RelaxedIK
     4. Run the executable and enjoy RelaxedIK!
